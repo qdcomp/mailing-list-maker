@@ -150,4 +150,7 @@ if check_password():
     # サイドバーにログアウトボタン
     if st.sidebar.button("ログアウト"):
         st.session_state["password_correct"] = False
-        st.rerun()
+        if hasattr(st, "rerun"):
+    st.rerun()
+else:
+    st.experimental_rerun()
