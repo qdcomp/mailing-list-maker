@@ -82,7 +82,7 @@ if check_password():
     if current_file is not None:
         try:
             # 1行目がタイトルのため header=1
-            df_curr_raw = pd.read_excel(current_file, header=1)
+            df_curr_raw = pd.read_excel(current_file, header=1, engine='openpyxl')
             
             # 抽出フィルタ：Active 且つ Email Opt-In が Yes
             def filter_eligible(df):
@@ -103,7 +103,7 @@ if check_password():
             # 差分比較ロジック
             excluded_data = pd.DataFrame()
             if previous_file is not None:
-                df_prev_raw = pd.read_excel(previous_file, header=1)
+                df_prev_raw = pd.read_excel(previous_file, header=1, engine='openpyxl')
                 df_prev_eligible = filter_eligible(df_prev_raw)
                 
                 if not df_prev_eligible.empty:
