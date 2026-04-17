@@ -147,10 +147,11 @@ if check_password():
         except Exception as e:
             st.error(f"エラーが発生しました: {e}")
 
-    # サイドバーにログアウトボタン
+# サイドバーにログアウトボタン
     if st.sidebar.button("ログアウト"):
         st.session_state["password_correct"] = False
+        # バージョン対策をしつつ、しっかりインデント（字下げ）を入れる
         if hasattr(st, "rerun"):
-    st.rerun()
-else:
-    st.experimental_rerun()
+            st.rerun()
+        else:
+            st.experimental_rerun()
