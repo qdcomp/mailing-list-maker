@@ -8,22 +8,18 @@ st.set_page_config(page_title="Blastメール 差分抽出ツール", layout="ce
 
 # --- 1. ログイン機能の設定 ---
 def check_password():
-    """パスワードが正しいか確認し、結果をセッションに保存する"""
     if "password_correct" not in st.session_state:
         st.session_state["password_correct"] = False
 
-    # すでにログイン済みならTrueを返す
     if st.session_state["password_correct"]:
         return True
 
-    # ログイン画面の表示
     st.title("🔒 ログインが必要です")
     password = st.text_input("パスワードを入力してください", type="password")
     
     if st.button("ログイン"):
         if password == "RimanJP2026!":
             st.session_state["password_correct"] = True
-            # 古いStreamlitバージョン対策
             if hasattr(st, "rerun"):
                 st.rerun()
             else:
@@ -32,27 +28,15 @@ def check_password():
             st.error("パスワードが正しくありません")
     return False
 
-# ログインチェックを実行
 if check_password():
-
-    # --- 2. メインツール処理 ---
     st.title("📧 Blastメール用 差分抽出ツール")
     st.write(f"Logged in: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
-    # 共通のマッピング定義
     mapping = {
-        'MemberID': 'MemberID',
-        'Sponsor #': 'ReferrerMainFK',
-        'First Name': 'fname',
-        'Last Name': 'lname',
-        'Gender': 'Gender',
-        'Type': 'MemberType',
-        'Status': 'MemberStatus',
-        'Company Name': 'company',
-        'City': 'city',
-        'State': 'state',
-        'Zip': 'zip',
-        'Email': 'E-Mail'
+        'MemberID': 'MemberID', 'Sponsor #': 'ReferrerMainFK', 'First Name': 'fname',
+        'Last Name': 'lname', 'Gender': 'Gender', 'Type': 'MemberType',
+        'Status': 'MemberStatus', 'Company Name': 'company', 'City': 'city',
+        'State': 'state', 'Zip': 'zip', 'Email': 'E-Mail'
     }
 
     def convert_df_to_csv_bytes(df, is_excluded=False):
@@ -61,7 +45,6 @@ if check_password():
         else:
             output_df = df[list(mapping.keys())].rename(columns=mapping)
             output_df['Other'] = ""
-        
         csv_buffer = io.StringIO()
         try:
             output_df.to_csv(csv_buffer, index=False, encoding='cp932', errors='replace')
@@ -79,7 +62,6 @@ if check_password():
 
     if current_file is not None:
         try:
-            # サーバー環境に合わせて engine='openpyxl' を明示
             df_curr_raw = pd.read_excel(current_file, header=1, engine='openpyxl')
             
             def filter_eligible(df):
@@ -102,7 +84,8 @@ if check_password():
                     excluded_mask = df_prev_eligible['MemberID'].isin(df_curr_eligible['MemberID'])
                     excluded_data = df_prev_eligible[~excluded_mask]
 
-            st.divider()
+            # --- st.divider() の代わりに st.markdown("---") を使用 ---
+            st.markdown("---")
             st.subheader("2. 抽出結果")
             res_col1, res_col2, res_col3 = st.columns(3)
             res_col1.metric("Planner", f"{len(planner_data)}件")
@@ -110,7 +93,7 @@ if check_password():
             if previous_file:
                 res_col3.metric("削除対象", f"{len(excluded_data)}件")
 
-            st.divider()
+            st.markdown("---")
             btn_col1, btn_col2 = st.columns(2)
             with btn_col1:
                 st.write("▼ 配信対象CSV")
@@ -128,7 +111,6 @@ if check_password():
         except Exception as e:
             st.error(f"エラーが発生しました: {e}")
 
-    # サイドバーにログアウトボタン
     if st.sidebar.button("ログアウト"):
         st.session_state["password_correct"] = False
         if hasattr(st, "rerun"):
