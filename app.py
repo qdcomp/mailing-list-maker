@@ -44,10 +44,15 @@ if check_password():
         if is_excluded:
             output_df = df[['Email']].rename(columns={'Email': 'E-Mail'})
         else:
-            # マッピングに含まれる列のみを抽出し、名称を変更
+            # 基本のマッピング適用
             output_df = df[list(mapping.keys())].rename(columns=mapping)
             output_df['Other'] = ""
             output_df['Email Opt-In'] = df['Email Opt-In']
+            # 【新機能】Bank列を追加
+            if 'Bank' in df.columns:
+                output_df['Bank'] = df['Bank']
+            else:
+                output_df['Bank'] = ""
         
         csv_buffer = io.StringIO()
         try:
@@ -92,12 +97,11 @@ if check_password():
             res_col1.metric("Planner", f"{len(planner_data)}件")
             res_col2.metric("Shopping", f"{len(shopping_data)}件")
             res_col3.metric("Opt-Out", f"{len(df_curr_optout)}件")
-            res_col4.metric("全件(無加工)", f"{len(df_curr_raw)}件")
+            res_col4.metric("全件", f"{len(df_curr_raw)}件")
             if previous_file:
                 res_col5.metric("削除対象", f"{len(excluded_data)}件")
 
             st.markdown("---")
-            # レイアウト調整：ボタンを4列に変更
             btn_col1, btn_col2, btn_col3, btn_col4 = st.columns(4)
             
             with btn_col1:
@@ -113,7 +117,6 @@ if check_password():
                     st.download_button("Opt-Out保存", convert_df_to_csv_bytes(df_curr_optout).encode('cp932', errors='replace'), f"ACTIVE_OPTOUT_{date_str}.csv")
                 
                 st.write("▼ 全データ")
-                # 【新機能】フィルタリングなしの全データ出力
                 st.download_button("全データ保存", convert_df_to_csv_bytes(df_curr_raw).encode('cp932', errors='replace'), f"ALL_MAPPED_DATA_{date_str}.csv")
 
             with btn_col3:
